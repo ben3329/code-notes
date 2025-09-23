@@ -1,0 +1,76 @@
+
+name: Deploy Development Environment
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: develop
+    steps:
+      - name: 🛠️ Checkout code
+        uses: actions/checkout@v4
+      - name: 🔧 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: 🔑 Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: 🏗️ Build, tag, and push image to Amazon ECR
+        uses: docker/build-push-action@v6
+        id: build-push-action
+        with:
+          context: .
+          file: ./dockerfile
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPO }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: 🖼️ Setup Output for Image
+        id: build-image-api
+        env: 
+          IMAGE_TAG: develop
+        run: echo "image=${{ steps.login-ecr.outputs.registry }}/${{ secrets.AWS_ECR_REPO }}@${{ steps.build-push-action.outputs.imageid }}" >> $GITHUB_OUTPUT
+      - name: 📝 Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-family: ${{ secrets.AWS_ECS_TASK_DEFINITION_FAMILY_DEVELOP }}
+          container-name: ${{ secrets.AWS_ECS_CONTAINER_NAME_DEVELOP }}
+          image: ${{ steps.build-image-api.outputs.image }}
+      - name: 🚀 Deploy Amazon ECS task definition 
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          cluster: ${{ secrets.AWS_ECS_CLUSTER_DEVELOP }}
+          service: ${{ secrets.AWS_ECS_SERVICE_DEVELOP }}
+          wait-for-service-stability: false
+      - name: 📝 Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-api
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition-family: ${{ secrets.AWS_ECS_TASK_DEFINITION_FAMILY_DEVELOP_API }}
+          container-name: ${{ secrets.AWS_ECS_CONTAINER_NAME_DEVELOP }}
+          image: ${{ steps.build-image-api.outputs.image }}
+      - name: 🚀 Deploy Amazon ECS task definition for Public API
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def-api.outputs.task-definition }}
+          cluster: ${{ secrets.AWS_ECS_CLUSTER_DEVELOP }}
+          service: ${{ secrets.AWS_ECS_SERVICE_DEVELOP_API }}
+          wait-for-service-stability: false
+
+            
