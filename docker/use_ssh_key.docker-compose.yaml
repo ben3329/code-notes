@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+      secrets:
+        - ssh_key
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    command: fastapi dev --host 0.0.0.0 --port 8000
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /app/app
+        - action: rebuild
+          path: poetry.lock
+    volumes:
+      - ./app:/app/app
+
+secrets:
+  ssh_key:
+    file: ~/.ssh/id_rsa
