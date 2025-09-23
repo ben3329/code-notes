@@ -1,0 +1,20 @@
+[project]
+name = "package-mode-false-example"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "ben3329",email = "ben3329@naver.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+]
+
+
+[tool.poetry]
+packages = [{include = "package-mode-false-example", from = "src"}]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
