@@ -1,10 +1,8 @@
-import os
 from enum import Enum
 
 import openpyxl
 from openpyxl.cell.cell import Cell
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, Side
-from openpyxl.utils import get_column_letter
 
 
 class NamedStyleEnum(Enum):

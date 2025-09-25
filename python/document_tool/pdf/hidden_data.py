@@ -1,5 +1,3 @@
-from collections import deque
-
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import (
     ArrayObject,

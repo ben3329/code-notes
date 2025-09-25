@@ -1,2 +1,0 @@
-[lint.per-file-ignores]
-"file-path.py" = ["ErrorCode", "E402"]

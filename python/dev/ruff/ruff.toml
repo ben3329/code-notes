@@ -1,0 +1,2 @@
+[lint.per-file-ignores]
+"file-path.py" = ["E402"]

@@ -27,13 +27,13 @@ config.set_main_option(
     "sqlalchemy.url",
     sqlalchemy_url,
 )
-from app.db.tables import *
+# from app.db.tables import *
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel  # noqa: E402
 
 target_metadata = SQLModel.metadata
 
