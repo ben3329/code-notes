@@ -81,7 +81,7 @@ class CheckMaintenanceMiddleware(BaseHTTPMiddleware):
                     self._status, self._end_time = await run_in_threadpool(
                         self.check_maintenance_status, self.aws_config
                     )
-                except:
+                except Exception:
                     self._status = MaintenanceStatusEnum.OK
                 self._last_check_time = now
             if self._status == MaintenanceStatusEnum.MAINTENANCE:
