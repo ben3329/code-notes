@@ -5,7 +5,6 @@ description = ""
 authors = [
     {name = "ben3329",email = "ben3329@naver.com"}
 ]
-readme = "README.md"
 requires-python = ">=3.12,<4.0"
 dependencies = [
     "fastapi[standard] (>=0.116.2,<0.117.0)",
@@ -29,6 +28,9 @@ dependencies = [
     "fastapi-cognito (>=2.9.0,<3.0.0)",
 ]
 
+[tool.poetry]
+packages = [{include = "python", from = "src"}]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
