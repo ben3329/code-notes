@@ -6,12 +6,22 @@ from typing import Optional
 import boto3
 from fastapi import FastAPI, Request, status
 from fastapi.concurrency import run_in_threadpool
+from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette_context.middleware import ContextMiddleware
+from starlette_context.plugins import CorrelationIdPlugin, RequestIdPlugin
 
-app = FastAPI()
+app = FastAPI(
+    middleware=[
+        Middleware(
+            ContextMiddleware,
+            plugins=(RequestIdPlugin(), CorrelationIdPlugin()),
+        )
+    ],
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,6 +29,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_media_type_encoding_utf8(request, call_next):
+    response = await call_next(request)
+    if response.headers.get("Content-Type", "") == "application/json":
+        response.headers["Content-Type"] = "application/json; charset=UTF-8"
+    return response
 
 
 # custom middleware example
