@@ -2,11 +2,21 @@
 import os
 import sys
 
+from pydantic_settings import BaseSettings
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from decorators.marking import marking
 from fastapi import APIRouter, FastAPI
 from fastapi.routing import APIRoute
+
+
+class Config(BaseSettings):
+    use_marking: bool = True
+
+
+config = Config()
+
 
 app = FastAPI(
     title="My FastAPI Application",
@@ -31,5 +41,5 @@ async def hello2():
 for route in base_router.routes:
     if isinstance(route, APIRoute):
         endpoint = route.endpoint
-        if getattr(endpoint, "marked", False):
+        if config.use_marking and getattr(endpoint, "marked", False):
             app.router.routes.append(route)

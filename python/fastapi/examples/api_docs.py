@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Query, status
+from pydantic import BaseModel
 from scalar_fastapi import get_scalar_api_reference
+from sqlmodel import Field
 
 DISABLE_API_DOCS = False  # Set to True to disable OpenAPI docs
 
@@ -35,6 +37,28 @@ async def scalar_html():
     )
 
 
-@app.get("/hello", tags=["SomeTag"])
-async def hello():
-    return {"message": "Hello, World!"}
+class HelloOut(BaseModel):
+    message: str = Field(..., description="A friendly greeting message")
+
+
+@app.get(
+    "/hello",
+    tags=["SomeTag"],
+    summary="Hello Endpoint",
+    description="An endpoint that returns a friendly greeting.",
+    responses={
+        status.HTTP_418_IM_A_TEAPOT: {
+            "description": "I'm a teapot",
+        }
+    },
+)
+async def hello(
+    error: bool = Query(
+        False, description="Trigger teapot error", examples=[True, False]
+    )
+) -> HelloOut:
+    if error:  # Example condition to raise the teapot error
+        raise HTTPException(
+            status_code=status.HTTP_418_IM_A_TEAPOT, detail="I'm a teapot"
+        )
+    return HelloOut(message="Hello, World!")
