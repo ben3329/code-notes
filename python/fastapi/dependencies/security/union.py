@@ -1,3 +1,5 @@
+"""설정에 따라 인증 종속성을 선택 필요 시 사용"""
+
 from enum import Enum
 
 from dependencies.security.api_key import check_api_key

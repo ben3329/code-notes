@@ -1,7 +1,15 @@
 from datetime import date, datetime, timezone
 from uuid import UUID
 
-from sqlmodel import TIMESTAMP, Column, Field, SQLModel, UniqueConstraint
+from sqlmodel import (
+    TEXT,
+    TIMESTAMP,
+    Column,
+    Field,
+    Relationship,
+    SQLModel,
+    UniqueConstraint,
+)
 from uuid_extensions import uuid7
 
 
@@ -13,6 +21,7 @@ class SomeTable(SQLModel, table=True):
     )
     id: UUID = Field(primary_key=True, default_factory=uuid7)
     index_column: str = Field(index=True, unique=True)
+    text_column: str = Field(sa_column=Column(TEXT, nullable=False))
     int_column: int
     bool_column: bool
     datetime_column: datetime
@@ -25,8 +34,12 @@ class SomeTable(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
     )
 
+    useforeign_list: list["UseForeignKey"] = Relationship(back_populates="some")
+
 
 class UseForeignKey(SQLModel, table=True):
     __tablename__ = "use_foreign_key"
     id: int = Field(primary_key=True, default_factory=uuid7)
     some_table_id: UUID = Field(foreign_key="some_table.id")
+
+    some: SomeTable = Relationship(back_populates="useforeign_list")

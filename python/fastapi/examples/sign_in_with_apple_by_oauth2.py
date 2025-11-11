@@ -129,7 +129,6 @@ async def sign_in_with_apple(
     id_token: str = Form(None),
     state: str = Form(None),
 ) -> RedirectResponse:
-
     # 1) validate id_token
     if not id_token:
         id_token = await get_id_token(code, request.url)

@@ -4,7 +4,6 @@ WATERMARK_PATH = "some/path/to/watermark.pdf"
 
 
 def add_watermark(pdf_path: str) -> None:
-
     reader = PdfReader(pdf_path)
     writer = PdfWriter()
     watermark = PdfReader(WATERMARK_PATH).pages[0]

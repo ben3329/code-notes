@@ -55,7 +55,7 @@ class HelloOut(BaseModel):
 async def hello(
     error: bool = Query(
         False, description="Trigger teapot error", examples=[True, False]
-    )
+    ),
 ) -> HelloOut:
     if error:  # Example condition to raise the teapot error
         raise HTTPException(
